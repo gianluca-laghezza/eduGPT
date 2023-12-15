@@ -23,7 +23,7 @@ from gpt import GPTConfig, GPT
 # I/O
 out_dir = '2_layers'
 eval_interval = 1000
-log_interval = 1
+log_interval = 10
 eval_iters = 10
 eval_only = False # if True, script exits right after the first eval
 always_save_checkpoint = True # if True, always save a checkpoint after each eval
@@ -41,7 +41,7 @@ dropout = 0.1 # for pretraining 0 is good, for finetuning try 0.1+
 bias = False # do we use bias inside LayerNorm and Linear layers?
 # adamw optimizer
 learning_rate = 6e-4 # max learning rate
-max_iters = 10000 # total number of training iterations
+max_iters = 5000 # total number of training iterations
 weight_decay = 1e-1
 beta1 = 0.9
 beta2 = 0.95
@@ -49,7 +49,7 @@ grad_clip = 1.0 # clip gradients at this value, or disable if == 0.0
 # learning rate decay settings
 decay_lr = True # whether to decay the learning rate
 warmup_iters = 100 # how many steps to warm up for
-lr_decay_iters = 10000 # should be ~= max_iters per Chinchilla
+lr_decay_iters = 5000 # should be ~= max_iters per Chinchilla
 min_lr = 6e-5 # minimum learning rate, should be ~= learning_rate/10 per Chinchilla
 # system
 device = 'cuda' # examples: 'cpu', 'cuda', 'cuda:0', 'cuda:1' etc., or try 'mps' on macbooks
@@ -104,7 +104,6 @@ def get_batch(split):
         x, y = x.to(device), y.to(device)
     return x, y
 
-# init these up here, can override if init_from='resume' (i.e. from a checkpoint)
 best_val_loss = 1e9
 
 # model init
@@ -261,3 +260,9 @@ for iter_num in range(1, max_iters + 1):
         if log:
             logging.info('%d, %.4f, %.4e, %f, %.2f',
                           iter_num, lossf, np.nan, lr, running_mfu*100)
+            
+
+# generate from the model
+#context = torch.zeros((1, 1), dtype=torch.long, device=device)
+#print(decode(model.generate(context, max_new_tokens=500)[0].tolist()))
+#open('more.txt', 'w').write(decode(model.generate(context, max_new_tokens=10000)[0].tolist()))
